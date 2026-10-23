@@ -24,6 +24,9 @@ internal static class RegenPatches
     private const float VanillaEscalation = 10f; // timeUntilReviveTokenEarned += 10 after each earned revive
 
     private static int startingTotal;      // from InitializeOnClientsRpc(totalRevives), on host and clients
+
+    /// <summary>Most revives the pool refills to (0 = unknown yet).</summary>
+    internal static int Limit => startingTotal <= 0 ? 0 : startingTotal + System.Math.Max(0, Plugin.ExtraAboveStart.Value);
     private static int lastCount = -1;     // host: previous CurrentRevives, to notice the pool dropping below full
     private static IntPtr durationSetFor;  // host: ReviveManager we've applied SecondsPerRevive to
 
@@ -80,8 +83,10 @@ internal static class RegenPatches
                     duration.Value = Plugin.SecondsPerRevive.Value;
                 }
 
-                // The pool just dropped below full (vanilla only starts the timer at 0): start counting now.
-                if (lastCount >= limit && count < limit && count > 0) start.Value = now;
+                // The pool just dropped below full (vanilla only starts the timer when a revive takes it to 0):
+                // start counting now. Also covers the count being set from outside (e.g. RunSaves restoring a run),
+                // where the old start time would otherwise hand a revive back instantly.
+                if (lastCount >= limit && count < limit) start.Value = now;
                 lastCount = count;
             }
 
@@ -106,5 +111,44 @@ internal static class RegenPatches
             Plugin.Log.LogError($"Revive regen: {ex}");
             return true; // fall back to vanilla
         }
+    }
+
+    // ---------- taking damage speeds up the refill (host) ----------
+
+    internal static float LastBoostAt = -100f; // for the refill timer's flash
+    private static ReviveManager cachedManager;
+
+    // Each player's own game reports damage it took to the host with this RPC; the host runs it (execute stage).
+    [HarmonyPatch(typeof(PlayerHealthContainer), nameof(PlayerHealthContainer.NotifyDamageTakenOnServerRpc))]
+    [HarmonyPrefix]
+    private static void DamageTaken_Prefix(PlayerHealthContainer __instance, float amount)
+    {
+        try
+        {
+            if (!Plugin.Enabled.Value || !Plugin.DamageSpeedsUpRecharge.Value || amount <= 0f || startingTotal <= 0) return;
+            if (__instance.__rpc_exec_stage != NetworkBehaviour.__RpcExecStage.Execute) return;
+            var nm = NetworkManager.Singleton;
+            if (nm == null || !nm.IsServer) return;
+
+            if (cachedManager is null || cachedManager.WasCollected || cachedManager == null)
+                cachedManager = UnityEngine.Object.FindObjectOfType<ReviveManager>();
+            var rm = cachedManager;
+            if (rm == null || rm.CurrentRevives == null || rm.earningTokenStartTime == null || rm.timeUntilReviveTokenEarned == null) return;
+
+            int limit = Limit;
+            if (rm.CurrentRevives.Value >= limit) return;                      // nothing to refill
+            if (Raw.TryGetNullable4(rm, "pauseStartTime", out _)) return;      // paused
+
+            float max = __instance.MaxHealth;
+            if (max <= 0f) return;
+            float percent = Math.Min(amount, max) / max * 100f;
+            float seconds = percent * Plugin.SecondsPerPercentHealthLost.Value;
+            if (seconds <= 0f) return;
+
+            // Move the timer's start back: same as having waited that much longer.
+            rm.earningTokenStartTime.Value = rm.earningTokenStartTime.Value - seconds;
+            LastBoostAt = UnityEngine.Time.unscaledTime;
+        }
+        catch (Exception ex) { Plugin.Log.LogError($"Damage speeds up recharge: {ex.Message}"); }
     }
 }
