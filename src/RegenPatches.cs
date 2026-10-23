@@ -86,7 +86,7 @@ internal static class RegenPatches
             }
 
             if (count >= limit) return false;                    // full: nothing to earn
-            if (__instance.pauseStartTime.HasValue) return false; // game paused
+            if (Raw.TryGetNullable4(__instance, "pauseStartTime", out _)) return false; // game paused (float? field, read raw)
 
             float progress = (now - start.Value) / Math.Max(0.01f, duration.Value);
             __instance.OnReviveTokenEarningChanged?.Invoke(progress); // the game's progress ring

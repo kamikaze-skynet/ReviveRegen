@@ -21,7 +21,7 @@ public class Plugin : BasePlugin
 {
     public const string Guid = "girthy_mods.ReviveRegen";
     public const string Name = "ReviveRegen";
-    public const string Version = "1.0.0";
+    public const string Version = "1.0.1";
 
     internal static new ManualLogSource Log;
 
