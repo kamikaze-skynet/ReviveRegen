@@ -7,7 +7,8 @@ namespace ReviveRegen;
 
 /// <summary>
 /// Shows the refill under the game's revive counter: "+1 in 0:42" while a revive is being earned back,
-/// and "+1 Revive!" for a moment when one arrives.
+/// and "+1 Revive!" for a moment when one arrives. At 0 revives it stays out of the way: the game's own refill
+/// ring and "revive earned" animation handle 0 -> 1.
 /// The game's own refill ring only shows at 0 revives (its animator hides it otherwise), so without this
 /// there's no sign that revives are coming back. Reads the same synced values as the regen, so players who
 /// aren't the host see it too (if they have the mod).
@@ -61,8 +62,10 @@ public class RefillTimer : MonoBehaviour
         if (current == null || start == null || duration == null || clock == null) { Hide(); return; }
 
         int count = current.Value;
-        if (lastCount >= 0 && count > lastCount) flashUntil = Time.unscaledTime + 2.5f;
+        // 0 -> 1 uses the game's own refill ring and "revive earned" animation; only flash for refills above that.
+        if (lastCount >= 1 && count > lastCount) flashUntil = Time.unscaledTime + 2.5f;
         lastCount = count;
+        if (count == 0) { flashUntil = 0f; Hide(); return; } // at 0 the game shows its own ring
 
         // Sit just under the revive number (it moves with the HUD).
         var at = amount.rectTransform;

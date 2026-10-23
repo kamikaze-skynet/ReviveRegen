@@ -5,7 +5,7 @@ In The Spell Brigade, when your team runs out of revives a timer slowly earns **
 - Uses the game's own revive timer. Revives refill one at a time, and each one takes a little longer than the last, just like vanilla (configurable).
 - The timer starts as soon as you drop below your starting revives, not only when you hit zero.
 - **Taking damage speeds it up.** Each 1% of a player's max health they lose takes 1 second off the timer, so a rough fight refills revives faster.
-- **Refill timer** under the revive counter: "+1 in 0:42" while one is coming back (it flashes orange when damage speeds it up), and "+1 Revive!" when it arrives. The game's own ring only shows at 0 revives.
+- **Refill timer** under the revive counter: "+1 in 0:42" while one is coming back (it flashes orange when damage speeds it up), and "+1 Revive!" when it arrives. At 0 revives the game's own ring and animation are used instead.
 
 ## Multiplayer
 

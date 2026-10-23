@@ -1,6 +1,6 @@
 {
   "name": "ReviveRegen",
-  "version_number": "1.1.0",
+  "version_number": "1.1.1",
   "website_url": "https://github.com/kamikaze-skynet/ReviveRegen",
   "description": "Revives refill over time back to the number your run started with, using the game's own revive timer. Only the host needs it. Works with MoreWizards.",
   "dependencies": [
