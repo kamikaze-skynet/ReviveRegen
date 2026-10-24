@@ -1,3 +1,6 @@
+## 1.1.2
+- The refill timer now sits to the right of the revive count. It used to sit under the count, behind the party level badge.
+
 # Changelog
 
 ## 1.1.1

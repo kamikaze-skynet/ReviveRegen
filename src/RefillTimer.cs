@@ -67,10 +67,10 @@ public class RefillTimer : MonoBehaviour
         lastCount = count;
         if (count == 0) { flashUntil = 0f; Hide(); return; } // at 0 the game shows its own ring
 
-        // Sit just under the revive number (it moves with the HUD).
+        // Sit to the right of the revive number (below it is the party level badge, which covered it).
         var at = amount.rectTransform;
-        float down = at.rect.height * at.lossyScale.y * 0.95f;
-        label.rectTransform.position = at.position - new Vector3(0f, down, 0f);
+        float right = at.rect.width * at.lossyScale.x * (1f - at.pivot.x) + 8f * at.lossyScale.x;
+        label.rectTransform.position = at.position + new Vector3(right, 0f, 0f);
 
         if (Time.unscaledTime < flashUntil)
         {
@@ -93,10 +93,11 @@ public class RefillTimer : MonoBehaviour
         var rt = go.AddComponent<RectTransform>();
         go.transform.SetParent(display.transform, false);
         rt.sizeDelta = new Vector2(240f, 40f);
+        rt.pivot = new Vector2(0f, 0.5f);
         label = go.AddComponent<TextMeshProUGUI>();
         label.font = amount.font;
         label.fontSize = Mathf.Max(14f, amount.fontSize * 0.5f);
-        label.alignment = TextAlignmentOptions.Center;
+        label.alignment = TextAlignmentOptions.Left;
         label.textWrappingMode = TextWrappingModes.NoWrap;
         label.overflowMode = TextOverflowModes.Overflow;
         label.richText = true;
