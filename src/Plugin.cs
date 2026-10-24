@@ -21,7 +21,7 @@ public class Plugin : BasePlugin
 {
     public const string Guid = "girthy_mods.ReviveRegen";
     public const string Name = "ReviveRegen";
-    public const string Version = "1.1.2";
+    public const string Version = "1.1.3";
 
     internal static new ManualLogSource Log;
 
@@ -36,6 +36,7 @@ public class Plugin : BasePlugin
     public override void Load()
     {
         Log = base.Log;
+        HostConfig.Init(this, Guid, new[] { "Display.ShowRefillTimer" }, new System.Collections.Generic.Dictionary<string, string> { ["Regeneration.Enabled"] = "false" });
 
         Enabled = Config.Bind("Regeneration", "Enabled", true,
             "Revives refill one at a time until you're back to the number the run started with. Off = vanilla (only earns one back when you have none).");

@@ -26,3 +26,7 @@ The ReviveRegen config file in `BepInEx\config`, or your mod manager's config ed
 | DamageSpeedsUpRecharge | true | Taking damage makes the next revive come back sooner |
 | SecondsPerPercentHealthLost | 1 | Seconds taken off the timer per 1% of max health lost (1 = a full health bar saves 100 s) |
 | ShowRefillTimer | true | Show the refill timer under the revive counter |
+
+## Multiplayer settings
+
+In multiplayer everyone plays with the **host's** settings: the host's config is sent to every player from the lobby on, and the mod reads it instead of yours while you're connected. Your own whether you see the refill timer stay yours. Your config file is never changed. If the host doesn't have this mod, it stays off for you in that game.
